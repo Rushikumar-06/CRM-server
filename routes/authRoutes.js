@@ -6,6 +6,8 @@ const axios = require('axios');
 const verifyToken = require('../middleware/authMiddleware');
 const { saveUser } = require('../controllers/authController');
 const logActivity = require('../utils/logActivity');
+const { getProfile } = require('../controllers/authController');
+
 
 router.post('/register', async (req, res) => {
   const { email, password, displayName } = req.body;
@@ -93,5 +95,8 @@ router.post('/save-user', async (req, res) => {
     res.status(500).json({ error: 'Error saving user' });
   }
 });
+
+router.get('/me', verifyToken, getProfile);
+
 
 module.exports = router;
