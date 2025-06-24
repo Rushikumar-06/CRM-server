@@ -1,4 +1,5 @@
 const admin = require('../firebase/firebase');
+const User = require('../models/User'); // <-- Import your User model
 
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -10,8 +11,15 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const decoded = await admin.auth().verifyIdToken(token);
-    req.user = decoded;
-    req.uid = decoded.uid;
+
+
+    const user = await User.findOne({ uid: decoded.uid });
+    if (!user) {
+      return res.status(401).json({ error: 'User not found in database' });
+    }
+
+    req.user = user;        
+    req.uid = decoded.uid;  
     next();
   } catch (err) {
     res.status(403).json({ error: 'Invalid token' });

@@ -5,20 +5,26 @@ const User = require('../models/User');
 const axios = require('axios');
 const verifyToken = require('../middleware/authMiddleware');
 const { saveUser } = require('../controllers/authController');
-
+const logActivity = require('../utils/logActivity');
 
 router.post('/register', async (req, res) => {
   const { email, password, displayName } = req.body;
 
   try {
     const userRecord = await admin.auth().createUser({ email, password, displayName });
-    console.log(userRecord.getIdToken);
     const user = await User.create({
       uid: userRecord.uid,
       email: userRecord.email,
       displayName: userRecord.displayName,
       photoURL: userRecord.photoURL || '',
     });
+    await logActivity({
+  userId: user.uid,
+  action: 'user_login',
+  entityType: 'user',
+  entityId: user._id,
+  entityName: user.displayName || user.email
+});
 
     res.status(201).json({ message: 'User registered', user });
   } catch (err) {
@@ -47,6 +53,14 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ uid });
     if (!user) return res.status(404).json({ error: 'User not found in DB' });
 
+    await logActivity({
+      userId: user.uid,
+      action: 'user_login',
+      entityType: 'user',
+      entityId: user._id,
+      entityName: user.displayName || user.email,
+    });
+
     res.status(200).json({ token: idToken, user });
   } catch (err) {
     const code = err.response?.data?.error?.message;
@@ -57,7 +71,27 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/save-user', verifyToken, saveUser);
+router.post('/save-user', async (req, res) => {
+  const { uid, email, displayName, photoURL } = req.body;
+  try {
+    let user = await User.findOne({ uid });
+    if (!user) {
+      user = await User.create({ uid, email, displayName, photoURL });
+    }
 
+    await logActivity({
+      userId: user.uid,
+      action: 'user_login',
+      entityType: 'user',
+      entityId: user._id,
+      entityName: user.displayName || user.email
+    });
+
+    res.status(200).json({ message: 'User saved successfully', user });
+  } catch (err) {
+    console.error('Error saving Google user:', err);
+    res.status(500).json({ error: 'Error saving user' });
+  }
+});
 
 module.exports = router;
