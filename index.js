@@ -8,7 +8,6 @@ const chatSocketHandler = require('./sockets/chatSocket');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-const chatRoutes = require('./routes/chat');
 const conversationRoutes = require('./routes/conversations');
 const contactRoutes = require('./routes/contactRoutes');
 const tagRoutes = require('./routes/tags');
@@ -34,7 +33,6 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/chat', chatRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/tags', tagRoutes);

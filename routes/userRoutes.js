@@ -7,7 +7,6 @@ const User = require('../models/User');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// ✅ Update Profile Photo (Base64 stored in DB)
 router.post('/update-photo', verifyToken, upload.single('photo'), async (req, res) => {
   const uid = req.uid;
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
@@ -29,7 +28,6 @@ router.post('/update-photo', verifyToken, upload.single('photo'), async (req, re
   }
 });
 
-// ✅ Update Display Name
 router.post('/update-name', verifyToken, async (req, res) => {
   const { displayName } = req.body;
   const uid = req.uid;

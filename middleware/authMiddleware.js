@@ -1,5 +1,5 @@
 const admin = require('../firebase/firebase');
-const User = require('../models/User'); // <-- Import your User model
+const User = require('../models/User'); 
 
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;

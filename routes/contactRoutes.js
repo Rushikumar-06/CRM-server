@@ -74,7 +74,13 @@ router.post('/import', upload.single('file'), (req, res) => {
   const results = [];
   fs.createReadStream(req.file.path)
     .pipe(csv())
-    .on('data', (data) => results.push({ ...data, userId: req.user.uid }))
+    .on('data', (data) => {
+      const contactData = { ...data, userId: req.user.uid };
+      if (!contactData.tags || contactData.tags.trim() === '') {
+        delete contactData.tags;
+      }
+      results.push(contactData);
+    })
     .on('end', async () => {
       await Contact.insertMany(results);
       fs.unlinkSync(req.file.path);
